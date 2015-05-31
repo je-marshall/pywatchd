@@ -1,0 +1,47 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:                   pywatchd
+# Required-Start:             $syslog $remote_fs
+# Should-Start:              
+# Required-Stop:              $syslog $remote_fs
+# Should-Stop:                
+# Default-Start:              2 3 5
+# Default-Stop:
+# Short-Description:          Watches directories for changes and reports on them
+# Description:                
+### END INIT INFO
+
+# If the conf file is not present then the service will not run. Also
+# this will need to be modified to point to the acutal eventual location
+# of the python stuff, for now its going in /srv for operational
+# convenience.
+
+# Defaults
+CONFFILE=/etc/pywatchd.conf
+PYBIN=/srv/scripts/pywatchd/pywatchd.py
+
+if [ ! -e $CONFFILE ]; then
+	echo "[ERROR] Config file not found"
+	exit 1
+elif [ ! -r $CONFFILE ]; then
+	echo "[ERROR] Config file unreadable"
+	exit 1
+fi
+
+if [ "$1" = "start" ]; then
+	while read line; do
+		python $PYBIN -d $line start
+		echo "pywatchd running"
+	done < $CONFFILE
+elif [ "$1" = "stop" ]; then
+	while read line; do
+		python $PYBIN -d $line stop
+		echo "pywatchd stopped"
+	done < $CONFFILE
+elif [ "$1" = "restart" ]; then
+	while read line; do
+		python $PYBIN -d $line restart
+	done < $CONFFILE
+fi
+	
